@@ -4,9 +4,10 @@ import datetime
 import time
 import random
 import os
+import platform
 class RandTemp:
     def __init__(self):
-        self.path = 'randtemp.txt'
+        self.makePath()
         self.month1 = int(datetime.datetime.now().strftime(("%m")))
         self.day1 = int(datetime.datetime.now().strftime(("%d")))
         self.hour1 = int(datetime.datetime.now().strftime(("%H")))
@@ -16,6 +17,18 @@ class RandTemp:
         self.listOfStuff = []
         self.server = "balrog"
         self.config()
+    def makePath(self):
+        a = platform.system()
+        if a == "Linux":
+            self.isWindows = False
+        elif a == "Windows":
+            self.isWindows = True
+        if self.isWindows:
+            self.path = ".\\randtemp.txt"
+        elif not self.isWindows:
+            self.path = "./randtemp.txt"
+        else:
+            self.path = ".\\randtemp.txt"
     def loop(self):
         while self.count <= self.limit:
             # stuff = self.server+","+str(self.month1)+"/"+str(self.day1)+","+str(self.hour1)+":"+str(self.minute1)+","+str(random.randint(60,100))
@@ -23,7 +36,7 @@ class RandTemp:
             self.stuff = str(self.time1)+","+str(random.randint(60,100))
             time.sleep(2)
             print self.stuff
-            self.listOfStuff.insert(0,self.stuff)
+            self.listOfStuff.append(self.stuff)
             self.minute1 += 1
             if self.minute1 == 61:
                 self.minute1 -= 61
@@ -32,17 +45,23 @@ class RandTemp:
                 self.hour1 -= 25
                 self.day1 += 1
             self.count += 1
-        choice = raw_input('"q" to quit, "w" to write, "v" to view, "rr" to startover')
-        if choice == "rr":
+        self.count == 1
+        self.afterLoopConfig()
+    def afterLoopConfig(self):
+        choice = raw_input('"q" to quit, "w" to write, "wq" to write then quit, "v" to view, "b" to startover')
+        if choice == "b":
             self.config()
         elif choice == "w":
             self.write()
-            self.config()
+            self.afterLoopConfig()
+        elif choice == "wq":
+            self.write()
+            print "program end"
         elif choice == "q":
-            a = ""
+            print "program end"
         elif choice == "v":
             self.whatsinfile()
-            self.config
+            self.afterLoopConfig()
     def config(self):
         print "Server: "+self.server
         print "Loop count: "+str(self.limit)
@@ -75,11 +94,10 @@ class RandTemp:
             self.server = option
             self.config()
     def write(self):
-        if len(self.listOfStuff) > 0:
-            print "writing to file %s"%self.path
-            with open(self.path,'w') as f:
-                for thing in self.listOfStuff:
-                    f.write(str(thing)+"\n")
+        print "writing to file %s"%self.path
+        with open(self.path,'w') as f:
+            for thing in self.listOfStuff:
+                f.write(str(thing)+"\n")
     def whatsinfile(self):
         try:
             with open(self.path,'r') as f:
